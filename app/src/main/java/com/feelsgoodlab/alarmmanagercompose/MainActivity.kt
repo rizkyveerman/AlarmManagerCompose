@@ -10,9 +10,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -22,6 +24,7 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -89,6 +92,21 @@ class MainActivity : ComponentActivity() {
                                     message
                                 )
                             }
+                        }
+
+                        item {
+                            RepeatingAlarmWidget(onSetRepeating = { context, time, message ->
+                                alarmReceiver.setRepeatingAlarm(
+                                    context,
+                                    AlarmReceiver.TYPE_REPEATING,
+                                    time,
+                                    message
+                                )
+                            }, onCancelAlarm = { context ->
+                                alarmReceiver.cancelRepeatingAlarm(
+                                    context, AlarmReceiver.TYPE_REPEATING
+                                )
+                            })
                         }
                     }
                 }
@@ -201,6 +219,88 @@ fun OneTime(
             )
         }) {
             Text("Set alarm")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RepeatingAlarmWidget(
+    modifier: Modifier = Modifier,
+    onSetRepeating: (context: Context, selectedTime: String, alarmDescription: String) -> Unit,
+    onCancelAlarm: (context: Context) -> Unit
+) {
+    val context = LocalContext.current
+    var selectedTime by rememberSaveable { mutableStateOf<TimePickerState?>(null) }
+    var isClockModalShown by rememberSaveable { mutableStateOf(false) }
+    var alarmDescription by rememberSaveable { mutableStateOf("") }
+
+    Column(
+        modifier = modifier.padding(16.dp)
+    ) {
+        Text("One time alarm")
+
+
+        if (isClockModalShown) {
+            ClockPickerModal(onClockSelected = { it ->
+                selectedTime = it
+                isClockModalShown = false
+            }, onDismiss = {
+                isClockModalShown = false
+            })
+        }
+        Row(
+            modifier = Modifier.padding(bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                modifier = Modifier.padding(end = 16.dp),
+                onClick = { isClockModalShown = true }) {
+                Icon(
+                    painter = painterResource(R.drawable.clock),
+                    contentDescription = "Pick a clock"
+                )
+            }
+            if (selectedTime != null) {
+                val numFormat: NumberFormat = DecimalFormat("00")
+                Text(
+                    "Selected time: ${numFormat.format(selectedTime?.hour)}:${
+                        numFormat.format(
+                            selectedTime?.minute
+                        )
+                    }"
+                )
+            } else {
+                Text("No time selected")
+            }
+        }
+        TextField(
+            modifier = Modifier.padding(vertical = 8.dp),
+            value = alarmDescription,
+            onValueChange = { alarmDescription = it },
+            label = { Text("Description") })
+        Row {
+            Button(onClick = {
+                val numFormat: NumberFormat = DecimalFormat("00")
+
+                onSetRepeating(
+                    context,
+                    "${numFormat.format(selectedTime?.hour)}:${
+                        numFormat.format(
+                            selectedTime?.minute
+                        )
+                    }",
+                    alarmDescription
+                )
+            }) {
+                Text("Set alarm")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            OutlinedButton(onClick = {
+                onCancelAlarm(context)
+            }) {
+                Text("Cancel")
+            }
         }
     }
 }
