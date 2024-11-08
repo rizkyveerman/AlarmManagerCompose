@@ -85,6 +85,7 @@ class AlarmReceiver : BroadcastReceiver() {
         calendar.set(Calendar.MINUTE, Integer.parseInt(timeArray[1]))
         calendar.set(Calendar.SECOND, 0)
 
+
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             REPEATING_TIME_ID,

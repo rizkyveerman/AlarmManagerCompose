@@ -23,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -42,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.feelsgoodlab.alarmmanagercompose.ui.theme.AlarmManagerComposeTheme
 import java.text.DecimalFormat
@@ -95,6 +97,10 @@ class MainActivity : ComponentActivity() {
                         }
 
                         item {
+                            HorizontalDivider(thickness = 1.dp)
+                        }
+
+                        item {
                             RepeatingAlarmWidget(onSetRepeating = { context, time, message ->
                                 alarmReceiver.setRepeatingAlarm(
                                     context,
@@ -131,7 +137,7 @@ fun OneTime(
     Column(
         modifier = modifier.padding(16.dp)
     ) {
-        Text("One time alarm")
+        Text("One time alarm", fontWeight = FontWeight.Bold)
 
         if (isDateModalShown) {
             DatePickerModal(onDateSelected = {
@@ -238,7 +244,7 @@ fun RepeatingAlarmWidget(
     Column(
         modifier = modifier.padding(16.dp)
     ) {
-        Text("One time alarm")
+        Text("Repeating alarm", fontWeight = FontWeight.Bold)
 
 
         if (isClockModalShown) {
